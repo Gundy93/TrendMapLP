@@ -18,5 +18,23 @@ Thumbs.db
 .claude/cache/
 .omc/
 
-# Project-specific build artifacts
-# (시작 시 언어·프레임워크별 패턴을 추가)
+# Node / pnpm
+node_modules/
+.pnpm-store/
+
+# Build outputs
+.next/
+out/
+dist/
+build/
+.turbo/
+coverage/
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+
+# TypeScript
+*.tsbuildinfo
