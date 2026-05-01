@@ -47,6 +47,26 @@ Vercel Project → **Settings → Environment Variables**에서 다음 키를 **
 
 로컬 개발은 `.env.local` 파일(이미 `.gitignore`)에 동일 키 작성.
 
+## 3.1 Cloudflare Turnstile 발급 (M1 진입 후 1회)
+
+1. <https://dash.cloudflare.com> → **Turnstile** → **Add site**.
+2. Site name 임의, Hostnames에 `*.vercel.app`(preview)와 production 도메인 추가.
+3. **Widget Mode**: Invisible (UX 부담 최소).
+4. 발급된 키 두 개를 등록:
+   - `Site Key` → `NEXT_PUBLIC_TURNSTILE_SITE_KEY` (클라이언트 노출 OK)
+   - `Secret Key` → `TURNSTILE_SECRET_KEY` (서버 only)
+5. 미등록 상태에선 `apps/web/lib/turnstile.ts`가 **개발은 skip 모드**, **production은 거부 모드**로 동작.
+
+## 3.2 Upstash Redis 발급 (M1 진입 후 1회)
+
+1. <https://upstash.com> → **Create Database** → 무료 티어.
+2. Region: `ap-northeast-1`(Tokyo) 권장.
+3. **Read-Only REST**가 아니라 일반 REST URL/Token 발급.
+4. Vercel에 등록:
+   - `UPSTASH_REDIS_REST_URL`
+   - `UPSTASH_REDIS_REST_TOKEN`
+5. 미등록 상태에선 `apps/web/lib/rate-limit.ts`가 **skip 모드**로 모든 요청을 통과시키고 경고 로그를 남김.
+
 ## 4. 시크릿 회전 절차 (사고 시)
 
 1. Supabase Dashboard → **Project Settings → API → Reset service role key**.

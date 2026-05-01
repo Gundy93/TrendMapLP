@@ -1,0 +1,20 @@
+import { z } from "zod";
+import { deviceTypeSchema, utmSchema } from "./signup";
+
+export const eventTypeSchema = z.enum([
+  "page_view",
+  "cta_click",
+  "form_submit_attempt",
+  "form_submit_success",
+]);
+export type EventType = z.infer<typeof eventTypeSchema>;
+
+export const eventInputSchema = z.object({
+  eventType: eventTypeSchema,
+  visitorId: z.string().min(8).max(64),
+  sessionId: z.string().min(8).max(64).optional(),
+  referrer: z.string().max(500).optional(),
+  utm: utmSchema.optional(),
+  deviceType: deviceTypeSchema.optional(),
+});
+export type EventInput = z.infer<typeof eventInputSchema>;
