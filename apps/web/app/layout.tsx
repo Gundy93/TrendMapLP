@@ -18,7 +18,7 @@ const SITE_TITLE = "TrendMap — 사전 알림 신청";
 const SITE_DESCRIPTION =
   "인스타·네이버 지도 번갈아 켜지 않아도, 지금 여기 핫한 메뉴와 진짜 후기를 한 번에. 출시 사전 알림을 이메일로 받아보세요.";
 const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://trendmap.vercel.app";
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://trend-map-lp-web.vercel.app";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
