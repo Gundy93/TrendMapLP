@@ -87,6 +87,29 @@ Vercel Project → **Settings → Environment Variables**에서 다음 키를 **
 - 코드: Vercel Dashboard → **Deployments → 이전 빌드 → Promote to Production**.
 - DB: 마이그레이션은 idempotent + 역마이그레이션 SQL 동봉 권장.
 
+## 6.1 E2E 테스트 실행 (로컬 전용, M2)
+
+Playwright E2E 스위트는 실제 Supabase에 INSERT하고 service role로 cleanup한다. CI는 아직 미연동(별도 ADR 후 등록 예정).
+
+**전제**: `apps/web/.env.local`에 `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` 존재.
+
+1. **첫 실행 시 1회**: 브라우저 다운로드.
+   ```bash
+   pnpm --filter @trendmaplp/web test:e2e:install
+   ```
+2. **실행**:
+   ```bash
+   pnpm --filter @trendmaplp/web test:e2e
+   ```
+   `playwright.config.ts`의 `webServer`가 `pnpm dev`를 자동 기동(이미 떠 있으면 재사용). 5 케이스 × 2 project(chromium/mobile) = 10건.
+3. **디버깅**: `pnpm --filter @trendmaplp/web test:e2e:ui` (Playwright Inspector).
+4. **수동 cleanup** (cleanup hook 실패 시):
+   ```sql
+   delete from signups where email like 'e2e+%@trendmaplp.test';
+   ```
+
+테스트 데이터는 `e2e+{uuid}@trendmaplp.test` 패턴이라 운영 신청자 row와 충돌하지 않는다.
+
 ## 7. on-call
 
 - 1인 운영. 알림 채널은 M4에서 결정 (Sentry → Discord/Telegram webhook 후보).
