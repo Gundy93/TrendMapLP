@@ -94,20 +94,24 @@ export async function submitSignup(
     };
   }
 
-  // funnel telemetry — best effort, 실패해도 사용자에게 노출하지 않음
-  try {
-    const visitorId = await getOrCreateVisitorId();
-    await supabase.from("page_events").insert({
-      event_type: "form_submit_success",
-      visitor_id: visitorId,
-      utm_source: data.utm?.source ?? null,
-      utm_medium: data.utm?.medium ?? null,
-      utm_campaign: data.utm?.campaign ?? null,
-      utm_content: data.utm?.content ?? null,
-      device_type: deviceType,
-    });
-  } catch (err) {
-    console.warn("[signup] funnel event log failed", err);
+  // funnel telemetry — best effort, 실패해도 사용자에게 노출하지 않음.
+  // RFC 6761 .test TLD(예: e2e+{uuid}@trendmaplp.test)는 테스트 전용이므로
+  // PMF 분석에서 제외해 v_funnel_daily.signups_count에 노이즈가 안 섞이도록 함.
+  if (!data.email.endsWith(".test")) {
+    try {
+      const visitorId = await getOrCreateVisitorId();
+      await supabase.from("page_events").insert({
+        event_type: "form_submit_success",
+        visitor_id: visitorId,
+        utm_source: data.utm?.source ?? null,
+        utm_medium: data.utm?.medium ?? null,
+        utm_campaign: data.utm?.campaign ?? null,
+        utm_content: data.utm?.content ?? null,
+        device_type: deviceType,
+      });
+    } catch (err) {
+      console.warn("[signup] funnel event log failed", err);
+    }
   }
 
   return { ok: true };

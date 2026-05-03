@@ -1,4 +1,5 @@
 import { WordsCycler } from "./WordsCycler";
+import { HeroCTA } from "./HeroCTA";
 
 export function Hero() {
   return (
@@ -25,12 +26,7 @@ export function Hero() {
         <br />
         위치와 실제 후기를 한 번에 확인하세요.
       </p>
-      <a
-        href="#signup"
-        className="inline-flex w-full items-center justify-center py-4 bg-zinc-900 text-white rounded-2xl font-bold text-[15px] hover:bg-zinc-800 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-900"
-      >
-        사전 알림 신청하기
-      </a>
+      <HeroCTA />
     </header>
   );
 }
