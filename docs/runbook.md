@@ -74,6 +74,7 @@ Vercel Project → **Settings → Environment Variables**에서 다음 키를 **
 3. Vercel에서 **Redeploy**(production만으로 충분).
 4. (퍼블릭 저장소 사고면) `git log`/PR diff에서 노출 시점 확인 후 `git filter-repo` 등으로 히스토리 정리는 보통 무효 — **키 회전이 1순위**.
 5. Turnstile/Upstash도 동일 절차.
+6. **Vercel 로그**: hobby 플랜은 retention 1일이라 사고 직후 즉시 캡처(스크린샷 또는 로그 export)해두는 게 안전. Pro 플랜이면 retention이 길어지지만 PMF 검증 단계엔 hobby로 충분.
 
 ## 5. 마이그레이션 절차 (M1까지 수동)
 
@@ -110,6 +111,64 @@ Playwright E2E 스위트는 실제 Supabase에 INSERT하고 service role로 clea
 
 테스트 데이터는 `e2e+{uuid}@trendmaplp.test` 패턴이라 운영 신청자 row와 충돌하지 않는다.
 
-## 7. on-call
+## 7. on-call (1인 운영)
 
-- 1인 운영. 알림 채널은 M4에서 결정 (Sentry → Discord/Telegram webhook 후보).
+알림 채널은 미도입 — Vercel 로그를 주기적으로 직접 점검한다. 사고 검출이 늦은 게 비용이 되면 Sentry 도입을 후속 이슈에서 결정.
+
+### 7.1 주간 점검 (월요일 30분)
+
+1. **Vercel 로그**: Dashboard → 프로젝트 → Logs → 최근 24h `error` 필터.
+   - 5xx, Server Action 실패, `/api/event` insert 실패, `/api/signup` 관련 에러를 체크.
+   - `[signup] insert failed`, `[/api/event] insert failed`, `[turnstile]`, `[rate-limit]` 키워드 grep으로 빠르게 훑는다.
+   - 에러 0건이면 OK. 1건 이상이면 메시지·context·발생 시각을 메모하고 §7.3로.
+2. **주간 PMF SQL** 실행: `docs/queries/weekly_pmf.sql`을 Supabase Studio SQL editor에 붙여넣고 Run.
+   - 결과 캡처 → 본인 메모 도구(Notion/notepad)에 일자별로 누적.
+   - `conversion_pct` 추세를 확인. 광고 시작 후 D+7부터 의미 있는 신호.
+3. **신청자 신규 카운트**:
+   ```sql
+   select count(*) from public.signups where created_at > now() - interval '7 days';
+   ```
+4. **PII row 정합성**:
+   ```sql
+   select count(*) from public.signups where email is null or email = '';
+   ```
+   결과 0이어야 함.
+
+### 7.2 사고 분류
+
+| 증상 | 1차 조치 |
+|---|---|
+| Vercel 로그에서 `[signup] insert failed` 반복 | Supabase 키 만료/회전 의심 → §4 시크릿 회전 |
+| 신청은 가능하나 page_events 카운트 0 | `/api/event` route 에러 확인. 클라이언트 fetch 실패는 봇 가드 또는 rate-limit |
+| 시크릿 누설 의심(GitHub commit/log) | **즉시** §4 시크릿 회전. 그 다음 누설 범위 추적 |
+| 잘못된 배포 | §6 롤백 → 원인 fix PR |
+| DB 정합성 문제 | 새 마이그레이션 PR (§5) — 직접 `update`/`delete`는 가능한 피하고 SQL 파일로 흔적 남기기 |
+
+### 7.3 사고 기록
+
+- 사고 발생 시 `docs/incidents/YYYY-MM-DD-요약.md`로 5W1H 짧게 정리(미래 운영자/본인용).
+- 1주 이상 영향이 있으면 GitHub Issue로도 트래킹.
+
+## 8. 신청자 데이터 export
+
+마케팅 메일 송신, 사전 알림 발송, 분석 등 PII를 다룰 때.
+
+### 8.1 Supabase Studio UI
+1. Table editor → `signups` → 우상단 **Export to CSV**.
+2. 다운로드된 CSV는 신뢰 가능한 위치(Mac 기본 Downloads → 비밀번호 보관소)에 저장.
+3. 외부 공유 시 PII 처리방침에 동의 받은 컬럼만 포함.
+
+### 8.2 SQL로 컬럼 선택 export (권장)
+민감 정보는 줄여서 export — 필요한 컬럼만:
+```sql
+select email, source, utm_medium, utm_campaign, utm_content,
+       device_type, created_at
+from public.signups
+order by created_at;
+```
+SQL editor 결과창의 **Download** 버튼으로 CSV 저장.
+
+### 8.3 보관·삭제 원칙
+- export 파일은 사용 직후 **삭제** 또는 암호화된 보관소(1Password Vault 등)로 이동.
+- 외부 메일 서비스(Resend 등)에 업로드 후 7일 이내 원본 삭제.
+- 사용자 신청 취소(이메일 수신 거부) 요청 시 `delete from signups where email = '...'` 후 export 파일에서도 해당 행 제거.

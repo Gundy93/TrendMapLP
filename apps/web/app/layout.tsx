@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
+import { PageViewTracker } from "@/components/PageViewTracker";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -57,6 +58,7 @@ export default function RootLayout({
     >
       <body className="min-h-screen">
         {children}
+        <PageViewTracker />
         <Analytics />
       </body>
     </html>
