@@ -38,6 +38,7 @@ Vercel Project → **Settings → Environment Variables**에서 다음 키를 **
 | `SUPABASE_SERVICE_ROLE_KEY` | all | 서버 only (Server Action에서만 사용) |
 | `NEXT_PUBLIC_SUPABASE_URL` | all | 클라이언트 노출 OK |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | all | 클라이언트 노출 OK |
+| `NEXT_PUBLIC_SITE_URL` | all | OG/Twitter metadata base. 커스텀 도메인 이전 시 본 키만 갱신 |
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | all | M1에서 발급 |
 | `TURNSTILE_SECRET_KEY` | all | M1, 서버 only |
 | `UPSTASH_REDIS_REST_URL` | all | M1 |
