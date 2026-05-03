@@ -8,7 +8,7 @@ export function Target() {
   return (
     <section
       aria-labelledby="target-title"
-      className="py-16 bg-zinc-50 px-6"
+      className="py-16 bg-zinc-50 px-6 sm:px-14 lg:px-32"
     >
       <div className="mb-10">
         <p className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-2">

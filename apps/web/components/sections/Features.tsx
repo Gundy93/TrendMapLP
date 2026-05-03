@@ -29,7 +29,7 @@ export function Features() {
   return (
     <section
       aria-labelledby="features-title"
-      className="py-20 px-6"
+      className="py-20 px-6 sm:px-14 lg:px-32"
     >
       <header className="mb-16 text-center">
         <p className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-2">

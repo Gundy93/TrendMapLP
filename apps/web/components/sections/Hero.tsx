@@ -3,7 +3,7 @@ import { HeroCTA } from "./HeroCTA";
 
 export function Hero() {
   return (
-    <header className="px-6 pt-16 pb-12 text-center">
+    <header className="px-6 sm:px-14 lg:px-32 pt-16 pb-12 text-center">
       <p className="inline-flex items-center gap-1.5 px-3 py-1 mb-6 text-[10px] font-bold tracking-widest uppercase border border-zinc-200 rounded-full text-zinc-400">
         <span
           aria-hidden="true"

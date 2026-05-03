@@ -55,7 +55,7 @@ export function SignupForm() {
     <section
       id="signup"
       aria-labelledby="signup-title"
-      className="py-24 px-6 text-center bg-zinc-900 text-white"
+      className="py-24 px-6 sm:px-14 lg:px-32 text-center bg-zinc-900 text-white"
     >
       <div
         aria-hidden="true"
