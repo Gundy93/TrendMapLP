@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
@@ -13,9 +13,36 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const SITE_TITLE = "TrendMap — 사전 알림 신청";
+const SITE_DESCRIPTION =
+  "지금 뜨는 트렌드를 한 장의 지도로. 모바일 앱 출시 사전 알림을 이메일로 받아보세요.";
+
 export const metadata: Metadata = {
-  title: "TrendMapLP — 사전 알림 신청",
-  description: "트렌드맵 모바일 앱 출시 사전 알림을 이메일로 받아보세요.",
+  title: SITE_TITLE,
+  description: SITE_DESCRIPTION,
+  applicationName: "TrendMap",
+  openGraph: {
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    type: "website",
+    locale: "ko_KR",
+    siteName: "TrendMap",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+  },
+  robots: { index: true, follow: true },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
+  ],
 };
 
 export default function RootLayout({
