@@ -8,11 +8,10 @@ import {
   useRef,
   useState,
 } from "react";
+import { Mail, CheckCircle2 } from "lucide-react";
 import { submitSignup, type SignupResult } from "@/actions/signup";
 
 const initial: SignupResult | null = null;
-
-// 이메일 형식 1차 검사 — 서버는 Zod로 다시 검증한다.
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function SignupForm() {
@@ -26,10 +25,9 @@ export function SignupForm() {
     campaign?: string;
     content?: string;
   }>({});
-  const mountedAt = useRef<number>(0);
+  const mountedAt = useRef(0);
   const emailId = useId();
   const errorId = useId();
-  const statusId = useId();
 
   useEffect(() => {
     mountedAt.current = Date.now();
@@ -42,7 +40,7 @@ export function SignupForm() {
         content: sp.get("utm_content") ?? undefined,
       };
     } catch {
-      // URL 접근 불가 환경(SSR 안전 가드) — 무시
+      // SSR/edge-case 가드
     }
   }, []);
 
@@ -50,153 +48,122 @@ export function SignupForm() {
   const clientValid = useMemo(() => EMAIL_RE.test(trimmed), [trimmed]);
   const showInlineError = touched && trimmed.length > 0 && !clientValid;
 
+  const success = state?.ok && !state.alreadyRegistered;
+  const alreadyRegistered = state?.ok && state.alreadyRegistered;
+
   return (
     <section
       id="signup"
       aria-labelledby="signup-title"
-      className="bg-zinc-50 px-6 py-20 dark:bg-zinc-950"
+      className="py-24 px-6 text-center bg-zinc-900 text-white"
     >
-      <div className="mx-auto flex max-w-md flex-col gap-6">
-        <header className="flex flex-col gap-3 text-center">
-          <h2
-            id="signup-title"
-            className="text-3xl font-semibold tracking-tight sm:text-4xl"
-          >
-            출시되면 알려드릴게요
-          </h2>
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">
-            이메일 주소만 남겨주세요. 광고나 스팸은 보내지 않습니다.
-          </p>
-        </header>
-
-        <form
-          action={(fd) => {
-            const elapsed = mountedAt.current
-              ? Date.now() - mountedAt.current
-              : 0;
-            if (elapsedRef.current) {
-              elapsedRef.current.value = String(elapsed);
-              fd.set("elapsedMs", String(elapsed));
-            }
-            const utm = utmRef.current;
-            if (utm.source) fd.set("utm_source", utm.source);
-            if (utm.medium) fd.set("utm_medium", utm.medium);
-            if (utm.campaign) fd.set("utm_campaign", utm.campaign);
-            if (utm.content) fd.set("utm_content", utm.content);
-            formAction(fd);
-          }}
-          noValidate
-          className="flex flex-col gap-3"
-        >
-          {/* honeypot — 화면 밖, 스크린리더 무시 */}
-          <input
-            type="text"
-            name="website"
-            tabIndex={-1}
-            autoComplete="off"
-            aria-hidden="true"
-            className="pointer-events-none absolute h-0 w-0 opacity-0"
-          />
-          <input
-            ref={elapsedRef}
-            type="hidden"
-            name="elapsedMs"
-            defaultValue="0"
-          />
-
-          <label htmlFor={emailId} className="sr-only">
-            이메일 주소
-          </label>
-          <div className="flex flex-col gap-2 sm:flex-row">
-            <input
-              id={emailId}
-              type="email"
-              name="email"
-              required
-              autoComplete="email"
-              inputMode="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              onBlur={() => setTouched(true)}
-              aria-invalid={showInlineError || undefined}
-              aria-describedby={showInlineError ? errorId : undefined}
-              className="h-12 flex-1 rounded-full border border-zinc-300 bg-white px-5 text-base outline-none placeholder:text-zinc-400 focus-visible:border-black focus-visible:ring-2 focus-visible:ring-black dark:border-zinc-700 dark:bg-zinc-900 dark:focus-visible:border-white dark:focus-visible:ring-white"
-            />
-            <button
-              type="submit"
-              disabled={!clientValid || pending}
-              className="inline-flex h-12 items-center justify-center rounded-full bg-black px-6 text-base font-medium text-white transition disabled:cursor-not-allowed disabled:opacity-40 enabled:hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black dark:bg-white dark:text-black"
-            >
-              {pending ? (
-                <span className="inline-flex items-center gap-2">
-                  <Spinner />
-                  전송 중…
-                </span>
-              ) : (
-                "사전 알림 신청"
-              )}
-            </button>
-          </div>
-
-          {showInlineError && (
-            <p id={errorId} className="text-sm text-red-600">
-              올바른 이메일 형식이 아닙니다.
-            </p>
-          )}
-
-          <div
-            id={statusId}
-            role="status"
-            aria-live="polite"
-            className="min-h-[1.25rem] text-sm"
-          >
-            {state?.ok && state.alreadyRegistered && (
-              <span className="text-zinc-600 dark:text-zinc-300">
-                이미 등록된 이메일입니다. 출시되면 가장 먼저 알려드릴게요.
-              </span>
-            )}
-            {state?.ok && !state.alreadyRegistered && (
-              <span className="text-green-600">
-                신청이 완료되었습니다. 출시 소식을 메일로 보내드릴게요.
-              </span>
-            )}
-            {state && !state.ok && (
-              <span className="text-red-600">{state.message}</span>
-            )}
-          </div>
-        </form>
-
-        <p className="text-center text-xs text-zinc-500">
-          신청 시 개인정보 처리방침 및 이메일 수신에 동의하는 것으로 간주됩니다.
-        </p>
+      <div
+        aria-hidden="true"
+        className="w-14 h-14 bg-zinc-800 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-zinc-700"
+      >
+        <Mail size={24} />
       </div>
-    </section>
-  );
-}
+      <h2 id="signup-title" className="text-2xl font-bold mb-4 text-white">
+        출시 알림 받기
+      </h2>
+      <p className="text-[14px] text-zinc-400 mb-10 leading-relaxed font-medium">
+        얼리버드 가입자에게만 드리는
+        <br />
+        특별한 혜택을 놓치지 마세요!
+      </p>
 
-function Spinner() {
-  return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 24 24"
-      className="h-4 w-4 animate-spin"
-      fill="none"
-    >
-      <circle
-        cx="12"
-        cy="12"
-        r="10"
-        stroke="currentColor"
-        strokeOpacity="0.25"
-        strokeWidth="3"
-      />
-      <path
-        d="M22 12a10 10 0 0 1-10 10"
-        stroke="currentColor"
-        strokeWidth="3"
-        strokeLinecap="round"
-      />
-    </svg>
+      <form
+        action={(fd) => {
+          const elapsed = mountedAt.current
+            ? Date.now() - mountedAt.current
+            : 0;
+          if (elapsedRef.current) {
+            elapsedRef.current.value = String(elapsed);
+            fd.set("elapsedMs", String(elapsed));
+          }
+          const utm = utmRef.current;
+          if (utm.source) fd.set("utm_source", utm.source);
+          if (utm.medium) fd.set("utm_medium", utm.medium);
+          if (utm.campaign) fd.set("utm_campaign", utm.campaign);
+          if (utm.content) fd.set("utm_content", utm.content);
+          formAction(fd);
+        }}
+        noValidate
+        className="space-y-3"
+      >
+        <input
+          type="text"
+          name="website"
+          tabIndex={-1}
+          autoComplete="off"
+          aria-hidden="true"
+          className="pointer-events-none absolute h-0 w-0 opacity-0"
+        />
+        <input
+          ref={elapsedRef}
+          type="hidden"
+          name="elapsedMs"
+          defaultValue="0"
+        />
+
+        <label htmlFor={emailId} className="sr-only">
+          이메일 주소
+        </label>
+        <input
+          id={emailId}
+          type="email"
+          name="email"
+          required
+          autoComplete="email"
+          inputMode="email"
+          placeholder="이메일을 입력해 주세요"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          onBlur={() => setTouched(true)}
+          aria-invalid={showInlineError || undefined}
+          aria-describedby={showInlineError ? errorId : undefined}
+          className="w-full px-5 py-4 bg-zinc-800 border border-zinc-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-white text-sm text-white placeholder:text-zinc-500"
+        />
+
+        <button
+          type="submit"
+          disabled={!clientValid || pending}
+          className="w-full py-4 bg-white text-zinc-900 rounded-2xl font-bold text-[15px] shadow-lg transition-all enabled:active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+        >
+          {pending ? "전송 중…" : "사전 신청하기"}
+        </button>
+
+        {showInlineError && (
+          <p id={errorId} className="text-sm text-red-400 text-left">
+            올바른 이메일 형식이 아닙니다.
+          </p>
+        )}
+      </form>
+
+      <div
+        role="status"
+        aria-live="polite"
+        className="mt-6 min-h-[1.5rem] text-sm"
+      >
+        {success && (
+          <p className="flex items-center justify-center gap-2 text-white font-bold">
+            <CheckCircle2 size={16} aria-hidden="true" />
+            <span>신청되었습니다. 곧 만나요!</span>
+          </p>
+        )}
+        {alreadyRegistered && (
+          <p className="text-zinc-300">
+            이미 등록된 이메일입니다. 출시되면 가장 먼저 알려드릴게요.
+          </p>
+        )}
+        {state && !state.ok && (
+          <p className="text-red-400">{state.message}</p>
+        )}
+      </div>
+
+      <p className="mt-8 text-[11px] text-zinc-500">
+        신청 시 개인정보 처리방침 및 이메일 수신에 동의하는 것으로 간주됩니다.
+      </p>
+    </section>
   );
 }

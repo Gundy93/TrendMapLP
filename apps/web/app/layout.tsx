@@ -15,9 +15,12 @@ const geistMono = Geist_Mono({
 
 const SITE_TITLE = "TrendMap — 사전 알림 신청";
 const SITE_DESCRIPTION =
-  "지금 뜨는 트렌드를 한 장의 지도로. 모바일 앱 출시 사전 알림을 이메일로 받아보세요.";
+  "인스타·네이버 지도 번갈아 켜지 않아도, 지금 여기 핫한 메뉴와 진짜 후기를 한 번에. 출시 사전 알림을 이메일로 받아보세요.";
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://trendmap.vercel.app";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: SITE_TITLE,
   description: SITE_DESCRIPTION,
   applicationName: "TrendMap",
@@ -39,10 +42,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
-  ],
+  themeColor: "#ffffff",
 };
 
 export default function RootLayout({
@@ -53,9 +53,9 @@ export default function RootLayout({
   return (
     <html
       lang="ko"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable}`}
     >
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-screen">
         {children}
         <Analytics />
       </body>

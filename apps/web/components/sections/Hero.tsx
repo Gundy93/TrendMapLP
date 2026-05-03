@@ -1,35 +1,36 @@
+import { WordsCycler } from "./WordsCycler";
+
 export function Hero() {
   return (
-    <section
-      aria-labelledby="hero-title"
-      className="flex min-h-[80vh] flex-col items-center justify-center gap-6 px-6 py-16 text-center"
-    >
-      <p className="text-sm font-medium uppercase tracking-widest text-zinc-500">
-        모바일 앱 출시 예정
+    <header className="px-6 pt-16 pb-12 text-center">
+      <p className="inline-flex items-center gap-1.5 px-3 py-1 mb-6 text-[10px] font-bold tracking-widest uppercase border border-zinc-200 rounded-full text-zinc-400">
+        <span
+          aria-hidden="true"
+          className="w-1 h-1 bg-zinc-400 rounded-full animate-pulse"
+        />
+        Coming Soon
       </p>
-      <h1
-        id="hero-title"
-        className="max-w-2xl text-balance text-4xl font-semibold leading-tight tracking-tight sm:text-5xl"
-      >
-        지금 뜨는 트렌드를 한 장의 지도로.
+      <h1 className="text-[32px] font-bold leading-[1.2] tracking-tight mb-6">
+        &ldquo;<WordsCycler />&rdquo;에
+        <br />
+        괜한 돈 써서
+        <br />
+        <span className="text-zinc-900 underline decoration-zinc-200 decoration-4 underline-offset-4">
+          텅장되지 말아요
+        </span>{" "}
+        🥲
       </h1>
-      <p className="max-w-xl text-balance text-base text-zinc-600 sm:text-lg dark:text-zinc-400">
-        TrendMap이 출시되면 가장 먼저 알려드릴게요. 이메일만 남겨주시면 됩니다.
+      <p className="text-[15px] text-zinc-500 mb-10 leading-relaxed font-medium">
+        인스타, 네이버 지도를 번갈아 켜지 않아도
+        <br />
+        위치와 실제 후기를 한 번에 확인하세요.
       </p>
-      <div className="flex flex-col items-center gap-3 pt-2 sm:flex-row">
-        <a
-          href="#signup"
-          className="inline-flex h-12 items-center justify-center rounded-full bg-black px-8 text-base font-medium text-white transition hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black dark:bg-white dark:text-black"
-        >
-          사전 알림 신청
-        </a>
-        <a
-          href="#values"
-          className="inline-flex h-12 items-center justify-center rounded-full border border-zinc-300 px-8 text-base font-medium text-zinc-700 transition hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-900"
-        >
-          어떤 서비스인가요?
-        </a>
-      </div>
-    </section>
+      <a
+        href="#signup"
+        className="inline-flex w-full items-center justify-center py-4 bg-zinc-900 text-white rounded-2xl font-bold text-[15px] hover:bg-zinc-800 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-900"
+      >
+        사전 알림 신청하기
+      </a>
+    </header>
   );
 }
