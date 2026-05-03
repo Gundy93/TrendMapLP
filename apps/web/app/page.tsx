@@ -1,20 +1,22 @@
 import { Hero } from "@/components/sections/Hero";
-import { Values } from "@/components/sections/Values";
-import { Demo } from "@/components/sections/Demo";
-import { FAQ } from "@/components/sections/FAQ";
+import { Target } from "@/components/sections/Target";
+import { Features } from "@/components/sections/Features";
 import { SignupForm } from "@/components/sections/SignupForm";
 
 export default function Home() {
   return (
-    <main className="flex flex-1 flex-col">
-      <Hero />
-      <Values />
-      <Demo />
-      <FAQ />
-      <SignupForm />
-      <footer className="px-6 py-10 text-center text-xs text-zinc-500">
-        © {new Date().getFullYear()} TrendMap. All rights reserved.
-      </footer>
-    </main>
+    <div className="flex justify-center bg-zinc-100 min-h-screen">
+      <main className="relative w-full max-w-[393px] bg-white shadow-2xl min-h-screen flex flex-col overflow-x-hidden">
+        <Hero />
+        <Target />
+        <Features />
+        <SignupForm />
+        <footer className="pt-8 pb-16 px-6 border-t border-zinc-100 text-center">
+          <p className="text-[11px] text-zinc-300 font-medium">
+            © {new Date().getFullYear()} TREND MAP. ALL RIGHTS RESERVED.
+          </p>
+        </footer>
+      </main>
+    </div>
   );
 }

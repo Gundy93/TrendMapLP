@@ -7,8 +7,11 @@ test.describe.configure({ mode: "serial" });
 test.beforeAll(cleanupE2ESignups);
 test.afterAll(cleanupE2ESignups);
 
-const SUBMIT_BUTTON = /사전 알림 신청|전송 중/;
+// Hero CTA는 <a> (link role), 신청 폼만 <button> — getByRole("button")이 단일 매치.
+const SUBMIT_BUTTON = /사전 신청하기|전송 중/;
 const EMAIL_LABEL = "이메일 주소";
+const SUCCESS_TEXT = /신청되었습니다/;
+const DUPLICATE_TEXT = /이미 등록된 이메일입니다/;
 
 test("빈 입력 → 버튼 비활성", async ({ page }) => {
   await page.goto("/#signup");
@@ -40,7 +43,7 @@ test("정상 이메일 → 성공 메시지 + DB row", async ({ page }) => {
   await page.getByRole("button", { name: SUBMIT_BUTTON }).click();
 
   await expect(
-    page.getByText("신청이 완료되었습니다"),
+    page.getByText(SUCCESS_TEXT),
   ).toBeVisible({ timeout: 10_000 });
 
   const { data, error } = await sb
@@ -66,7 +69,7 @@ test("중복 이메일 → 친절 안내", async ({ page }) => {
   await page.getByRole("button", { name: SUBMIT_BUTTON }).click();
 
   await expect(
-    page.getByText("이미 등록된 이메일입니다"),
+    page.getByText(DUPLICATE_TEXT),
   ).toBeVisible({ timeout: 10_000 });
 });
 
@@ -84,6 +87,6 @@ test("키보드만으로 제출", async ({ page }) => {
   await page.keyboard.press("Enter");
 
   await expect(
-    page.getByText("신청이 완료되었습니다"),
+    page.getByText(SUCCESS_TEXT),
   ).toBeVisible({ timeout: 10_000 });
 });
